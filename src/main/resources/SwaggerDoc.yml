@@ -1,0 +1,167 @@
+openapi: 3.0.0
+
+info:
+  title: "URL Slicer"
+  version: '1.0'
+
+paths:
+  /slicer/v1/list:
+    get:
+      tags:
+        - Slicer
+      responses:
+        2XX:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UrlData'
+
+        default:
+          description: "Something went wrong"
+  /slicer/v1/url/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+    get:
+      tags:
+        - Slicer
+      responses:
+        2XX:
+          description: "OK"
+
+        default:
+          description: "Something want wrong"
+
+    delete:
+      tags:
+        - Slicer
+      responses:
+        2XX:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UrlData'
+
+        default:
+          description: "Something went wrong"
+
+  /slicer/v1/url:
+    post:
+      tags:
+        - Slicer
+      responses:
+        2XX:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UrlData/properties/id'
+        default:
+          description: "Something went wrong"
+    put:
+      tags:
+        - Slicer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditRequest'
+
+      responses:
+        2XX:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UrlData'
+
+        default:
+          description: "Something went wrong"
+
+
+  /user/v1:
+    get:
+      tags:
+        - User
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        2XX:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User/properties/username'
+
+        default:
+          description: "Something went wrong"
+    post:
+      tags:
+        - User
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        2XX:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User/properties/username'
+
+        default:
+          description: "Something went wrong"
+tags:
+  - name: Slicer
+  - name: User
+
+components:
+  schemas:
+    EditRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "4236423"
+        newUrl:
+          type: string
+          example: "editor.swagger.io/"
+        username:
+          type: string
+          example: "john"
+    UrlData:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "4236423"
+        newUrl:
+          type: string
+          example: "editor.swagger.io/"
+        refCounter:
+          type: integer
+          format: int64
+          example: 0
+    User:
+      type: object
+      properties:
+        username:
+          type: string
+          example: "john"
+        password:
+          type: string
+          example: "12345"
+
