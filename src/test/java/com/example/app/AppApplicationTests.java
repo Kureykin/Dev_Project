@@ -143,7 +143,7 @@ class AppApplicationTests {
 		String username = "john";
 		String password = "QwEr12345";
 
-		Assertions.assertThrows(UserAlreadyExistException.class, () -> userService.newUser(username, password));
+		Assertions.assertThrows(ResponseStatusException.class, () -> userService.newUser(username, password));
 	}
 
 	@Test
