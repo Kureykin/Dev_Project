@@ -21,20 +21,39 @@ paths:
 
         default:
           description: "Something went wrong"
-  /slicer/v1/url/{id}:
-    parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
+
+  /slicer/v1/list/active:
     get:
       tags:
         - Slicer
       responses:
         2XX:
           description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UrlData'
+        default:
+          description: "Something went wrong"
+
+  /slicer/v1/url/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - Slicer
+      responses:
+        2XX:
+          description: "OK"
+
+        4XX:
+          description: "Link not found"
 
         default:
           description: "Something want wrong"
@@ -50,6 +69,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/UrlData'
 
+        4XX:
+          description: "Link not found"
+
         default:
           description: "Something went wrong"
 
@@ -64,6 +86,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UrlData/properties/id'
+        4XX:
+          description: "User not found"
         default:
           description: "Something went wrong"
     put:
@@ -87,8 +111,8 @@ paths:
           description: "Something went wrong"
 
 
-  /user/v1:
-    get:
+  /user/v1/login:
+    post:
       tags:
         - User
       requestBody:
@@ -99,13 +123,13 @@ paths:
       responses:
         2XX:
           description: "OK"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User/properties/username'
+
+        4XX:
+          description: "User not exist"
 
         default:
           description: "Something went wrong"
+  /user/v1/registration:
     post:
       tags:
         - User
@@ -122,6 +146,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/User/properties/username'
 
+        4XX:
+          description: "User already exist"
+
         default:
           description: "Something went wrong"
 tags:
@@ -135,7 +162,7 @@ components:
       properties:
         id:
           type: string
-          example: "4236423"
+          example: "dw2d14d3"
         newUrl:
           type: string
           example: "editor.swagger.io/"
@@ -155,6 +182,10 @@ components:
           type: integer
           format: int64
           example: 0
+        isActive:
+          type: boolean
+          example: true
+
     User:
       type: object
       properties:
@@ -164,4 +195,5 @@ components:
         password:
           type: string
           example: "12345"
+
 

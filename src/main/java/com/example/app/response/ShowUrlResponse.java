@@ -1,6 +1,6 @@
 package com.example.app.response;
 
-import com.example.app.entity.UrlData;
+import com.example.app.db.entity.UrlData;
 import lombok.Builder;
 import lombok.Data;
 

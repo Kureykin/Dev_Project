@@ -1,0 +1,220 @@
+openapi: 3.0.0
+info:
+  title: URL Slicer
+  version: "1.0"
+servers:
+- url: /
+tags:
+- name: Slicer
+- name: User
+paths:
+  /slicer/v1/list:
+    get:
+      responses:
+        "2XX":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/UrlData'
+                type: array
+          description: OK
+        default:
+          description: Something went wrong
+      tags:
+      - Slicer
+      x-accepts:
+      - application/json
+  /slicer/v1/list/active:
+    get:
+      responses:
+        "2XX":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/UrlData'
+                type: array
+          description: OK
+        default:
+          description: Something went wrong
+      tags:
+      - Slicer
+      x-accepts:
+      - application/json
+  /slicer/v1/url/{id}:
+    delete:
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "2XX":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UrlData'
+          description: OK
+        "4XX":
+          description: Link not found
+        default:
+          description: Something went wrong
+      tags:
+      - Slicer
+      x-accepts:
+      - application/json
+    get:
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "2XX":
+          description: OK
+        "4XX":
+          description: Link not found
+        default:
+          description: Something want wrong
+      tags:
+      - Slicer
+      x-accepts:
+      - application/json
+  /slicer/v1/url:
+    post:
+      responses:
+        "2XX":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UrlData/properties/id'
+          description: OK
+        "4XX":
+          description: User not found
+        default:
+          description: Something went wrong
+      tags:
+      - Slicer
+      x-accepts:
+      - application/json
+    put:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditRequest'
+      responses:
+        "2XX":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UrlData'
+          description: OK
+        default:
+          description: Something went wrong
+      tags:
+      - Slicer
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /user/v1/login:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        "2XX":
+          description: OK
+        "4XX":
+          description: User not exist
+        default:
+          description: Something went wrong
+      tags:
+      - User
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /user/v1/registration:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        "2XX":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User/properties/username'
+          description: OK
+        "4XX":
+          description: User already exist
+        default:
+          description: Something went wrong
+      tags:
+      - User
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+components:
+  schemas:
+    EditRequest:
+      example:
+        newUrl: editor.swagger.io/
+        id: dw2d14d3
+        username: john
+      properties:
+        id:
+          example: dw2d14d3
+          type: string
+        newUrl:
+          example: editor.swagger.io/
+          type: string
+        username:
+          example: john
+          type: string
+      type: object
+    UrlData:
+      example:
+        refCounter: 0
+        newUrl: editor.swagger.io/
+        id: "4236423"
+        isActive: true
+      properties:
+        id:
+          example: "4236423"
+          type: string
+        newUrl:
+          example: editor.swagger.io/
+          type: string
+        refCounter:
+          example: 0
+          format: int64
+          type: integer
+        isActive:
+          example: true
+          type: boolean
+      type: object
+    User:
+      example:
+        password: "12345"
+        username: john
+      properties:
+        username:
+          example: john
+          type: string
+        password:
+          example: "12345"
+          type: string
+      type: object
+

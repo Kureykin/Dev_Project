@@ -6,5 +6,4 @@ import lombok.Data;
 public class EditRequest {
     private String newUrl;
     private String id;
-    private String jwt;
 }

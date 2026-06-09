@@ -1,21 +1,22 @@
 package com.example.app.service;
 
-import com.example.app.entity.UserData;
-import com.example.app.exception.InvalidPasswordException;
-import com.example.app.exception.NoUserException;
-import com.example.app.exception.UserAlreadyExistException;
-import com.example.app.exception.WrongPasswordException;
-import com.example.app.repository.UserRepository;
-import com.example.app.token.JWTService;
+import com.example.app.db.entity.UserData;
+import com.example.app.untils.exception.InvalidPasswordException;
+import com.example.app.untils.exception.UserAlreadyExistException;
+import com.example.app.db.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.util.NoSuchElementException;
-import java.util.Objects;
-
+@Service
 public class UserDataServiceImp implements UserDataService {
 
     @Autowired
     private UserRepository repo;
+    @Autowired
+    private PasswordEncoder encoder;
 
     private boolean hasChars(String password, char[] chars) {
         for (char c: chars) {
@@ -42,29 +43,20 @@ public class UserDataServiceImp implements UserDataService {
             throw new InvalidPasswordException();
         }
 
+        String hash = encoder.encode(password);
+
         if(!repo.existsById(username)){
-            UserData newUser = new UserData(username, password);
+            UserData newUser = new UserData(username, hash);
             repo.save(newUser);
 
-            return new JWTService().compile(newUser.getUsername());
+            return newUser.getUsername();
         }
 
-        throw new UserAlreadyExistException();
+        throw new ResponseStatusException(HttpStatus.CONFLICT, "User already exist");
     }
-
     @Override
-    public String authorisation(String username, String password) {
-
-        try{
-            UserData data = repo.findById(username).get();
-
-            if(Objects.equals(data.getPassword(), password)) {
-                return new JWTService().compile(data.getUsername());
-            }
-        } catch (NoSuchElementException e) {
-            throw new NoUserException();
-        }
-
-        throw new WrongPasswordException();
+    public UserData findUserByName(String username) {
+        return repo.findById(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
     }
 }
