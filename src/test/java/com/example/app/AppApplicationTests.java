@@ -179,4 +179,30 @@ class AppApplicationTests {
 
 		Assertions.assertThrows(ResponseStatusException.class, () -> testSlicerService.redirect(testUrl.getSlicedUrl()));
 	}
+
+	@Test
+	void editNoAccessTest() {
+		String newTrueUrl = "www.google.com";
+		String username = "alex";
+
+		Assertions.assertThrows(ResponseStatusException.class, () ->
+				slicerService.edit(testData.getSlicedUrl(), newTrueUrl, username));
+	}
+
+	@Test
+	void deleteNoAccessTest() {
+		String newTrueUrl = "www.google.com";
+		String username = "alex";
+
+		Assertions.assertThrows(ResponseStatusException.class, () ->
+				slicerService.delete(testData.getSlicedUrl(), username));
+	}
+
+	@Test
+	void UserNotFoundTest() {
+		String username = "alex";
+
+		Assertions.assertThrows(ResponseStatusException.class, () ->
+				slicerService.delete(testData.getSlicedUrl(), username));
+	}
 }

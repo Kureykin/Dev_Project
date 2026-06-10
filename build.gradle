@@ -85,10 +85,10 @@ jacocoTestCoverageVerification {
 		dependsOn jacocoTestReport
 
 		 rule{
-			element = 'INSTRUCTION'
+			element = 'BUNDLE'
 
 			limit{
-				counter = 'LINE'
+				counter = 'INSTRUCTION'
 				value = 'COVEREDRATIO'
 				minimum = 0.80
 			}
