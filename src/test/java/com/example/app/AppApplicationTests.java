@@ -5,8 +5,7 @@ import com.example.app.db.entity.UserData;
 import com.example.app.db.repository.SlicerRepository;
 import com.example.app.db.repository.UserRepository;
 import com.example.app.service.*;
-import com.example.app.untils.exception.InvalidPasswordException;
-import com.example.app.untils.exception.UserAlreadyExistException;
+import com.example.app.until.exception.InvalidPasswordException;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,7 +13,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -98,7 +96,9 @@ class AppApplicationTests {
 	void editTest() {
 		String newTrueUrl = "www.google.com";
 
-		UrlData response = slicerService.edit(testData.getSlicedUrl(), newTrueUrl);
+		UrlData response = slicerService.edit(testData.getSlicedUrl(), newTrueUrl,
+				testData.getUsername()
+						.getUsername());
 
 		Assertions.assertEquals(newTrueUrl, response.getUrl());
 	}
@@ -114,7 +114,9 @@ class AppApplicationTests {
 	@Test
 	void deleteTest() {
 
-		UrlData result = slicerService.delete(testData.getSlicedUrl());
+		UrlData result = slicerService.delete(testData.getSlicedUrl(),
+				testData.getUsername()
+						.getUsername());
 
 		Assertions.assertEquals(testData, result);
 	}

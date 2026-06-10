@@ -1,8 +1,7 @@
 package com.example.app.service;
 
 import com.example.app.db.entity.UserData;
-import com.example.app.untils.exception.InvalidPasswordException;
-import com.example.app.untils.exception.UserAlreadyExistException;
+import com.example.app.until.exception.InvalidPasswordException;
 import com.example.app.db.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.apache.logging.log4j.CloseableThreadContext;
 
 import java.sql.Date;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -37,7 +38,7 @@ public class UrlData {
         this.slicedUrl = slicedUrl;
         references = 0L;
         this.username = username;
-        date = LocalDate.now();
+        date = LocalDate.now().plusDays(14);
         this.isActive = true;
     }
 
@@ -46,7 +47,7 @@ public class UrlData {
         this.slicedUrl = slicedUrl;
         references = 0L;
         this.username = username;
-        date = LocalDate.now();
+        date = LocalDate.now().plusDays(14);
         this.isActive = isActive;
     }
 

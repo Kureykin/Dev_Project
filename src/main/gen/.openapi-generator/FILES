@@ -1,6 +1,5 @@
 .github/workflows/maven.yml
 .gitignore
-.openapi-generator-ignore
 .travis.yml
 README.md
 api/openapi.yaml
@@ -43,8 +42,3 @@ src/main/java/org/openapitools/client/model/AbstractOpenApiSchema.java
 src/main/java/org/openapitools/client/model/EditRequest.java
 src/main/java/org/openapitools/client/model/UrlData.java
 src/main/java/org/openapitools/client/model/User.java
-src/test/java/org/openapitools/client/api/SlicerApiTest.java
-src/test/java/org/openapitools/client/api/UserApiTest.java
-src/test/java/org/openapitools/client/model/EditRequestTest.java
-src/test/java/org/openapitools/client/model/UrlDataTest.java
-src/test/java/org/openapitools/client/model/UserTest.java

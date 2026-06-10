@@ -51,7 +51,11 @@ dependencies {
 	testImplementation group: 'org.testcontainers', name: 'testcontainers', version: '2.0.3'
 	testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.21.4'
 	testImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.21.4'
-	implementation 'com.h2database:h2:2.4.240'
+}
+
+dependencies {
+	testImplementation('com.atlassian.oai:swagger-request-validator-core:2.34.1')
+	testImplementation('com.atlassian.oai:swagger-request-validator-mockmvc:2.34.1')
 }
 
 tasks.named('test') {
@@ -61,6 +65,12 @@ tasks.named('test') {
 
 jacocoTestReport {
 	dependsOn test
+
+	reports {
+		xml.required = false
+		csv.required = false
+		html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
+	}
 }
 
 jacoco {
@@ -68,10 +78,23 @@ jacoco {
 	reportsDirectory = layout.buildDirectory.dir('customJacocoReportDir')
 }
 
-jacocoTestReport {
-	reports {
-		xml.required = false
-		csv.required = false
-		html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
+jacocoTestCoverageVerification {
+	dependsOn jacocoTestReport
+
+	violationRules {
+		dependsOn jacocoTestReport
+
+		 rule{
+			element = 'INSTRUCTION'
+
+			limit{
+				counter = 'LINE'
+				value = 'COVEREDRATIO'
+				minimum = 0.80
+			}
+		}
 	}
+
 }
+
+check.dependsOn jacocoTestCoverageVerification

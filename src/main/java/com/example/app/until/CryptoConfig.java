@@ -1,4 +1,4 @@
-package com.example.app.untils;
+package com.example.app.until;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -24,19 +24,17 @@ import org.springframework.security.web.access.ExceptionTranslationFilter;
 @EnableWebSecurity
 public class SecurityConfig {
     @Value("${app.secret.key}")
-    private String SECRET;
-    @Autowired
-    private PasswordEncoder encoder;
+    private String secret;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager manager) {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/user/v1/registration", "/user/v1/login", "/slicer/v1/url/{id}").anonymous()
+                        .requestMatchers("/user/v1/registration", "/user/v1/login", "/slicer/v1/url/{id}").permitAll()
                         .anyRequest().authenticated())
-                .addFilterAfter(new JwtAuthenticationFilter(manager, SECRET, encoder), ExceptionTranslationFilter.class)
-                .addFilterAfter(new JWTAuthorizationFilter(SECRET), JwtAuthenticationFilter.class)
+                .addFilterAfter(new JwtAuthenticationFilter(manager, secret), ExceptionTranslationFilter.class)
+                .addFilterAfter(new JWTAuthorizationFilter(secret), JwtAuthenticationFilter.class)
                 .build();
     }
 

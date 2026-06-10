@@ -13,10 +13,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class JWTAuthorizationFilter extends OncePerRequestFilter {
-    private String SECRET;
+    private String secret;
 
-    public JWTAuthorizationFilter(String SECRET) {
-        this.SECRET = SECRET;
+    public JWTAuthorizationFilter(String secret) {
+        this.secret = secret;
     }
 
     @Override
@@ -25,7 +25,7 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 
         if (token != null && token.startsWith("Bearer ")) {
             String user = Jwts.parserBuilder()
-                    .setSigningKey(SECRET).build()
+                    .setSigningKey(secret).build()
                     .parseClaimsJws(token.replace("Bearer ", ""))
                     .getBody()
                     .getSubject();
