@@ -1,175 +1,215 @@
 package com.example.app;
 
-import com.example.app.entity.UrlData;
-import com.example.app.entity.UserData;
-import com.example.app.exception.InvalidPasswordException;
-import com.example.app.exception.NoUserException;
-import com.example.app.exception.UserAlreadyExistException;
-import com.example.app.exception.WrongPasswordException;
-import com.example.app.repository.SlicerRepository;
-import com.example.app.repository.UserRepository;
-import com.example.app.requests.EditRequest;
-import com.example.app.response.EditResponse;
-import com.example.app.response.NewUrlResponse;
-import com.example.app.response.ShowUrlResponse;
-import com.example.app.service.SlicerServiceImp;
-import com.example.app.service.UserDataServiceImp;
-import com.example.app.token.JWTService;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import com.example.app.db.entity.UrlData;
+import com.example.app.db.entity.UserData;
+import com.example.app.db.repository.SlicerRepository;
+import com.example.app.db.repository.UserRepository;
+import com.example.app.service.*;
+import com.example.app.until.exception.InvalidPasswordException;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.web.server.ResponseStatusException;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.Mockito.when;
 
-
+@SpringBootTest
+@Testcontainers
 @ExtendWith(MockitoExtension.class)
 class AppApplicationTests {
 
-	@Mock
-	private SlicerRepository slicerRepository;
-	@InjectMocks
-	private SlicerServiceImp slicerService;
+	@Container
+	private static PostgreSQLContainer
+			POSTGRES = new PostgreSQLContainer<>("postgres:14")
+			.withDatabaseName("testdb")
+			.withUsername("testname")
+			.withPassword("test");
 
+	@DynamicPropertySource
+	static void properties(DynamicPropertyRegistry registry) {
+		registry.add("spring.datasource.url", POSTGRES::getJdbcUrl);
+		registry.add("spring.datasource.username", POSTGRES::getUsername);
+		registry.add("spring.datasource.password", POSTGRES::getPassword);
+	}
+
+	@Autowired
+	private SlicerRepository slicerRepo;
+	@Autowired
+	private SlicerServiceImp slicerService;
+	@Autowired
+	private UserRepository userRepo;
+	@Autowired
+	private UserDataServiceImp userService;
+
+	private PasswordEncoder encoder = new BCryptPasswordEncoder();
+
+	private final UserData testUser = new UserData("john",
+			encoder.encode("QwEr12345"));
+
+	private final UrlData testData = new UrlData("a14b2f31" ,"www.youtube.com", testUser);
+
+	@BeforeEach
+	void saveTestData() {
+		userRepo.save(testUser);
+		slicerRepo.save(testData);
+	}
+
+	@AfterEach
+	void deleteTestData() {
+		slicerRepo.deleteById(testData.getSlicedUrl());
+	}
 
 	@Test
 	void sliceTest() {
+		String result = slicerService.slice(testData.getUrl(), testUser.getUsername());
 
-		String url = "www.youtube.com";
+        Assertions.assertTrue(slicerRepo.existsById(result));
 
-		NewUrlResponse response = slicerService.slice(url);
-
-        Assertions.assertNotNull(response);
+		slicerRepo.deleteById(result);
 	}
+
 	@Test
 	void showDataTest() {
 
-		List<UrlData> list = List.of();
+		List<UrlData> list = List.of(testData);
 
-		when(slicerRepository.findAll()).thenReturn(list);
+		List<UrlData> response = slicerService.showData(testUser.getUsername());
 
-		ShowUrlResponse response = slicerService.showData();
-
-		Assertions.assertEquals(list, response.getDataList());
+		Assertions.assertEquals(list, response);
 	}
+
 	@Test
 	void editTest() {
-		EditRequest request = new EditRequest();
-		request.setId("local:8080/slicer/1");
-		request.setNewUrl("asasdasdsadadasdewd");
+		String newTrueUrl = "www.google.com";
 
-		UrlData data = new UrlData("rfegjnedfgiojfedgio");
+		UrlData response = slicerService.edit(testData.getSlicedUrl(), newTrueUrl,
+				testData.getUsername()
+						.getUsername());
 
-		when(slicerRepository.findById(request.getId())).thenReturn(Optional.of(data));
-
-		EditResponse response = slicerService.edit(request);
-
-		Assertions.assertEquals(request.getNewUrl(), response.getData().getUrl());
+		Assertions.assertEquals(newTrueUrl, response.getUrl());
 	}
+
 	@Test
 	void redirectTest() {
-		String url = "www.youtube.com";
-		UrlData data = new UrlData(url);
 
-		when(slicerRepository.findById(data.getSlicedUrl())).thenReturn(Optional.of(data));
+		String result = slicerService.redirect(testData.getSlicedUrl());
 
-		String result = slicerService.redirect(data.getSlicedUrl());
-
-		Assertions.assertEquals(url, result);
+		Assertions.assertEquals(testData.getUrl(), result);
 	}
+
 	@Test
 	void deleteTest() {
-		String url = "www.youtube.com";
-		UrlData data = new UrlData(url);
 
-		when(slicerRepository.findById(data.getSlicedUrl())).thenReturn(Optional.of(data));
+		UrlData result = slicerService.delete(testData.getSlicedUrl(),
+				testData.getUsername()
+						.getUsername());
 
-		UrlData result = slicerService.delete(data.getSlicedUrl());
-
-		Assertions.assertEquals(data, result);
+		Assertions.assertEquals(testData, result);
 	}
-
-	@Mock
-	private UserRepository userRepo;
-	@InjectMocks
-	private UserDataServiceImp userService;
 
 	@Test
 	void correctRegistrationTest(){
-		String username = "john";
+		String username = "alex";
 		String password = "QwEr12345";
-		UserData user = new UserData(username, password);
 
-		when(userRepo.existsById(username)).thenReturn(false);
 
 		String result = userService.newUser(username, password);
 
-		Assertions.assertEquals(new JWTService().compile(username), result);
+		Assertions.assertEquals(username, result);
 	}
+
 	@Test
 	void invalidPasswordTest() {
 		String username = "john";
 		String password = "QWER12345";
 
-		Assertions.assertThrows(InvalidPasswordException.class, () -> userService.newUser(username, password));
+		Assertions.assertThrows(ResponseStatusException.class, () -> userService.newUser(username, password));
 	}
+
 	@Test
-	void useExistTest(){
+	void userExistTest(){
 		String username = "john";
 		String password = "QwEr12345";
 
-		when(userRepo.existsById(username)).thenReturn(true);
-
-		Assertions.assertThrows(UserAlreadyExistException.class, () -> userService.newUser(username, password));
+		Assertions.assertThrows(ResponseStatusException.class, () -> userService.newUser(username, password));
 	}
 
 	@Test
-	void correctAuthorisationTest() {
-		String username = "john";
-		String password = "QwEr12345";
-		UserData user = new UserData(username, password);
+	void findUserByNameTest() {
+		String username = testUser.getUsername();
 
-		when(userRepo.findById(username)).thenReturn(Optional.of(user));
+		UserData result = userService.findUserByName(username);
 
-		String result = userService.authorisation(username, password);
-
-		Assertions.assertEquals(new JWTService().compile(username), result);
-	}
-	@Test
-	void wrongPasswordTest() {
-		String username = "john";
-		String password = "QwEr12345";
-		String wrongPassword = "1111111111";
-		UserData user = new UserData(username, password);
-
-		when(userRepo.findById(username)).thenReturn(Optional.of(user));
-
-		Assertions.assertThrows(WrongPasswordException.class, () ->  userService.authorisation(username, wrongPassword));
-	}
-	@Test
-	void NoUserTest() {
-		String username = "john";
-		String password = "QwEr12345";
-		UserData user = new UserData(username, password);
-
-		when(userRepo.findById(username)).thenReturn(Optional.empty());
-
-		Assertions.assertThrows(NoUserException.class, () ->  userService.authorisation(username, password));
+		Assertions.assertEquals(testUser, result);
 	}
 
-	JWTService jwtService = new JWTService();
+	@Test
+	void getAllActiveUrlsTest() {
+		UrlData expUrl = new UrlData("wsf2a53c", "https://github.com/", testUser);
+		expUrl.setDate(LocalDate.now().minusDays(1));
+
+		slicerRepo.save(expUrl);
+
+		List<UrlData> result = slicerService.showActiveData(testUser.getUsername());
+
+		Assertions.assertEquals(List.of(testData), result);
+
+		slicerRepo.delete(expUrl);
+	}
+
+	@Mock
+	private SlicerRepository testSliserRepo;
+
+	@InjectMocks
+	private SlicerServiceImp testSlicerService;
 
 	@Test
-	void compileTest() {
-		String username = "john";
+	void getNonactiveUrl() {
+		UrlData testUrl = new UrlData("fnvk214l" ,"www.youtube.com", testUser, false);
 
-		String result = jwtService.compile(username);
+		when(testSliserRepo.findById(testUrl.getSlicedUrl())).thenReturn(Optional.of(testUrl));
 
-        Assertions.assertNotSame(username, result);
+		Assertions.assertThrows(ResponseStatusException.class, () -> testSlicerService.redirect(testUrl.getSlicedUrl()));
+	}
+
+	@Test
+	void editNoAccessTest() {
+		String newTrueUrl = "www.google.com";
+		String username = "alex";
+
+		Assertions.assertThrows(ResponseStatusException.class, () ->
+				slicerService.edit(testData.getSlicedUrl(), newTrueUrl, username));
+	}
+
+	@Test
+	void deleteNoAccessTest() {
+		String newTrueUrl = "www.google.com";
+		String username = "alex";
+
+		Assertions.assertThrows(ResponseStatusException.class, () ->
+				slicerService.delete(testData.getSlicedUrl(), username));
+	}
+
+	@Test
+	void UserNotFoundTest() {
+		String username = "alex";
+
+		Assertions.assertThrows(ResponseStatusException.class, () ->
+				slicerService.delete(testData.getSlicedUrl(), username));
 	}
 }

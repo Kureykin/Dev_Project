@@ -1,66 +1,76 @@
 package com.example.app.controller;
 
-import com.example.app.entity.UrlData;
+import com.example.app.db.entity.UrlData;
 import com.example.app.requests.EditRequest;
 import com.example.app.requests.NewUrlRequest;
-import com.example.app.response.EditResponse;
+import com.example.app.response.DeleteResponse;
+import com.example.app.response.UrlResponse;
 import com.example.app.response.NewUrlResponse;
 import com.example.app.response.ShowUrlResponse;
 import com.example.app.service.SlicerService;
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
-@Controller
-@RequestMapping("/slicer/v1")
+import java.util.List;
+
+@RestController
+@RequestMapping(path = "/slicer/v1")
 public class SlicerController {
 
     @Autowired
     private SlicerService service;
 
-    @PostMapping( name = "url")
-    public NewUrlResponse sliceNewUrl(@RequestBody NewUrlRequest request)  {
-        try {
-            if(request.getJwt() == null) {
-                throw new Exception();
-            }
-            return service.slice(request.getUrl());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    @Operation
+    @PostMapping("/url")
+    public NewUrlResponse sliceNewUrl(@Valid @RequestBody NewUrlRequest request, @AuthenticationPrincipal String user)  {
+             String slicedUrl = service.slice(request.getUrl(),
+                     user);
+
+            return NewUrlResponse.response(slicedUrl);
     }
-    @GetMapping(name = "url")
-    public RedirectView get(String id) {
+
+    @Operation
+    @GetMapping("/url/{id}")
+    public RedirectView get(@Valid @PathVariable String id) {
         RedirectView redirect = new RedirectView();
         redirect.setUrl(service.redirect(id));
 
         return redirect;
     }
-    @GetMapping("list")
-    public ShowUrlResponse showUrl() {
-        return service.showData();
+
+    @Operation
+    @GetMapping("/list")
+    public ShowUrlResponse showUrl(@AuthenticationPrincipal String user) {
+        List<UrlData> urlList = service.showData(user);
+
+        return ShowUrlResponse.response(urlList);
     }
-    @PutMapping(name = "url")
-    public EditResponse edit(@RequestBody EditRequest request) {
-        try {
-            if(request.getJwt() == null) {
-                throw new Exception();
-            }
-            return service.edit(request);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+
+    @Operation
+    @GetMapping("/list/active")
+    public ShowUrlResponse showActiveUrls(@AuthenticationPrincipal String user) {
+        List<UrlData> activeUrlList = service.showActiveData(user);
+
+        return ShowUrlResponse.response(activeUrlList);
     }
-    @DeleteMapping(name = "url")
-    public UrlData delete(@RequestBody String id, @RequestBody String jwt) {
-        try {
-            if(jwt == null) {
-                throw new Exception();
-            }
-            return service.delete(id);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+
+    @Operation
+    @PutMapping("/url")
+    public UrlResponse edit(@Valid @RequestBody EditRequest request, @AuthenticationPrincipal String user) {
+            UrlData data = service.edit(request.getId(), request.getNewUrl(), user);
+
+            return UrlResponse.response(data);
+    }
+
+    @Operation
+    @DeleteMapping("/url/{id}")
+    public DeleteResponse delete(@PathVariable String id, @AuthenticationPrincipal String user) {
+        UrlData data = service.delete(id, user);
+
+            return DeleteResponse.response(data.getSlicedUrl(), data.getUrl());
     }
 }

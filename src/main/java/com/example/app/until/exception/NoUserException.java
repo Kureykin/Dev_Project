@@ -1,4 +1,4 @@
-package com.example.app.exception;
+package com.example.app.until.exception;
 
 public class NoUserException extends RuntimeException {
     public NoUserException() {
