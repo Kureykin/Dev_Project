@@ -34,7 +34,7 @@ public class SlicerController {
     }
 
     @Operation
-    @GetMapping("/url/{id}")
+    @GetMapping("/url/redirect/{id}")
     public RedirectView get(@Valid @PathVariable String id) {
         RedirectView redirect = new RedirectView();
         redirect.setUrl(service.redirect(id));

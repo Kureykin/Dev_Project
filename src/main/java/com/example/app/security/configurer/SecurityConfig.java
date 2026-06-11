@@ -31,7 +31,7 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/user/v1/registration", "/user/v1/login", "/slicer/v1/url/{id}").permitAll()
+                        .requestMatchers("/user/v1/registration", "/user/v1/login", "/slicer/v1/url/redirect/{id}").permitAll()
                         .anyRequest().authenticated())
                 .addFilterAfter(new JwtAuthenticationFilter(manager, secret), ExceptionTranslationFilter.class)
                 .addFilterAfter(new JWTAuthorizationFilter(secret), JwtAuthenticationFilter.class)
