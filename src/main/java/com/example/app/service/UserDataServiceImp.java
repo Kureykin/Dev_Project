@@ -3,6 +3,7 @@ package com.example.app.service;
 import com.example.app.db.entity.UserData;
 import com.example.app.until.exception.InvalidPasswordException;
 import com.example.app.db.repository.UserRepository;
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,7 +27,7 @@ public class UserDataServiceImp implements UserDataService {
         return false;
     }
 
-    private boolean isPasswordValid(String password){
+    private boolean isPasswordValid(@NonNull String password){
         char[] bigLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
         char[] smallLetters = "abcdefghijklmnopqrstuvwxyz".toCharArray();
         char[] numbers = "1234567890".toCharArray();
@@ -39,7 +40,7 @@ public class UserDataServiceImp implements UserDataService {
     public String newUser(String username, String password) throws InvalidPasswordException {
 
         if(!isPasswordValid(password)) {
-            throw new InvalidPasswordException();
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password is invalid");
         }
 
         String hash = encoder.encode(password);

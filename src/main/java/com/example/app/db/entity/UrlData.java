@@ -4,6 +4,7 @@ package com.example.app.db.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.logging.log4j.CloseableThreadContext;
 
 import java.sql.Date;
@@ -24,6 +25,7 @@ public class UrlData {
     private String url;
     @Column(name = "`RefCount`", nullable = false)
     private Long references;
+    @Setter
     @Column(name = "`ExpDate`", nullable = false)
     private LocalDate date;
     @Column(name ="`IsActive`", nullable = false)

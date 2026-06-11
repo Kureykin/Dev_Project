@@ -50,7 +50,7 @@ public class SlicerServiceImp implements SlicerService {
     @Override
     public List<UrlData> showActiveData(String username) {
         UserData user = userService.findUserByName(username);
-        return repo.showActiveData(user);
+        return repo.showActiveData(user, LocalDate.now());
     }
 
     @Override

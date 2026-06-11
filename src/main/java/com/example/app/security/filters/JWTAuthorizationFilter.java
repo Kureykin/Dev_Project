@@ -30,8 +30,6 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
                     .getBody()
                     .getSubject();
 
-            System.out.println(user);
-
             if (user != null) {
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(user, null, new ArrayList<>());

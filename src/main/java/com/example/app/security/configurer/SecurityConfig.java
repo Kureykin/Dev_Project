@@ -52,8 +52,6 @@ public class SecurityConfig {
                     .findFirst()
                     .orElseThrow(() -> new UsernameNotFoundException("User " + username + " not found"));
 
-            System.out.println(tmp.getPassword());
-
             return tmp;
         };
     }

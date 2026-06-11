@@ -47,12 +47,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             throw new RuntimeException(e);
         }
 
-
-
         String username = loginRequest.getUsername();
         String password = loginRequest.getPassword();
-
-        System.out.println(password);
 
         return manager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
     }

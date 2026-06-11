@@ -22,6 +22,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -137,7 +138,7 @@ class AppApplicationTests {
 		String username = "john";
 		String password = "QWER12345";
 
-		Assertions.assertThrows(InvalidPasswordException.class, () -> userService.newUser(username, password));
+		Assertions.assertThrows(ResponseStatusException.class, () -> userService.newUser(username, password));
 	}
 
 	@Test
@@ -159,11 +160,17 @@ class AppApplicationTests {
 
 	@Test
 	void getAllActiveUrlsTest() {
+		UrlData expUrl = new UrlData("wsf2a53c", "https://github.com/", testUser);
+		expUrl.setDate(LocalDate.now().minusDays(1));
+
+		slicerRepo.save(expUrl);
+
 		List<UrlData> result = slicerService.showActiveData(testUser.getUsername());
 
 		Assertions.assertEquals(List.of(testData), result);
-	}
 
+		slicerRepo.delete(expUrl);
+	}
 
 	@Mock
 	private SlicerRepository testSliserRepo;

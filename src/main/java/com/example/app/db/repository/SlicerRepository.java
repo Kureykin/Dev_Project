@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -20,6 +21,6 @@ public interface SlicerRepository extends JpaRepository<UrlData, String> {
     @Query("select u from UrlData u where u.username = :username")
     List<UrlData> showAllUsersUrl(UserData username);
 
-    @Query("select u from UrlData u where u.username = :username and u.isActive = true")
-    List<UrlData> showActiveData(UserData username);
+    @Query("select u from UrlData u where u.username = :username and u.isActive = true and u.date > :curDate")
+    List<UrlData> showActiveData(UserData username, LocalDate curDate);
 }

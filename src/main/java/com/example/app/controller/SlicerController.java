@@ -1,27 +1,20 @@
 package com.example.app.controller;
 
 import com.example.app.db.entity.UrlData;
-import com.example.app.db.entity.UserData;
 import com.example.app.requests.EditRequest;
 import com.example.app.requests.NewUrlRequest;
 import com.example.app.response.DeleteResponse;
-import com.example.app.response.EditResponse;
+import com.example.app.response.UrlResponse;
 import com.example.app.response.NewUrlResponse;
 import com.example.app.response.ShowUrlResponse;
 import com.example.app.service.SlicerService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.view.RedirectView;
 
-import java.security.Security;
 import java.util.List;
 
 @RestController
@@ -67,10 +60,10 @@ public class SlicerController {
 
     @Operation
     @PutMapping("/url")
-    public EditResponse edit(@Valid @RequestBody EditRequest request, @AuthenticationPrincipal String user) {
+    public UrlResponse edit(@Valid @RequestBody EditRequest request, @AuthenticationPrincipal String user) {
             UrlData data = service.edit(request.getId(), request.getNewUrl(), user);
 
-            return EditResponse.response(data);
+            return UrlResponse.response(data);
     }
 
     @Operation
